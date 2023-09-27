@@ -28,16 +28,16 @@ contactSchema.post("save", handleMongooseError);
 
 const addSchema = Joi.object({
   name: Joi.string().required(),
-  email: Joi.string().required(),
+  email: Joi.string(),
   phone: Joi.string().required(),
-  favotite: Joi.boolean(),
+  favorite: Joi.boolean(),
 });
 
-const updateFavoriteSchema = Joi.object({
+const updateStatusContact = Joi.object({
   favorite: Joi.boolean().required(),
 });
 
-const schemas = { addSchema, updateFavoriteSchema };
+const schemas = { addSchema, updateStatusContact };
 
 const Contact = model("contact", contactSchema);
 
