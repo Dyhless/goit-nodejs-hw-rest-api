@@ -46,8 +46,47 @@ const login = async (req, res) => {
   });
 };
 
+const getCurrent = async (req, res) => { 
+   const { email, name } = req.user;
+   
+   res.json({
+      email,
+      name,
+   })
+}
+
+const logout = async (req, res) => {
+  const { _id } = req.user;
+  await User.findByIdAndUpdate(_id, { token: "" });
+
+  res.json({
+    message: "Logout success",
+  });
+};
+
+const updateSubscription = async (req, res) => {
+  const { subscription } = req.body;
+  const { _id } = req.user;
+
+  if (!["starter", "pro", "business"].includes(subscription)) {
+    throw HttpError(400);
+  }
+  const updatedSubscription = await User.findByIdAndUpdate(
+    _id,
+    { subscription },
+    {
+      new: true,
+    }
+  );
+  res.status(200).json({
+    subscription: updatedSubscription.subscription,
+  });
+};
 
 module.exports = {
    register: ctrlWrapper(register),
    login: ctrlWrapper(login),
+   getCurrent: ctrlWrapper(getCurrent),
+   logout: ctrlWrapper(logout),
+   updateSubscription: ctrlWrapper(updateSubscription),
 }
