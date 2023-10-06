@@ -93,11 +93,6 @@ const updateAvatar = async (req, res) => {
   const filename = `${_id}_${originalname}`;
   const resultUpload = path.join(avatarDir, filename);
 
-  await fs.rename(tempUpload, resultUpload);
-
-  const avatarURL = path.join("avatars", filename);
-  await User.findByIdAndUpdate(_id, { avatarURL });
-
   Jimp.read(tempUpload)
     .then((image) => {
       image.resize(250, 250).quality(90).write(resultUpload);
@@ -105,12 +100,15 @@ const updateAvatar = async (req, res) => {
     .catch((err) => {
       throw HttpError(400, err);
     });
-
   fs.unlink(tempUpload);
 
-  res.json({
+  await fs.rename(tempUpload, resultUpload);
+  const avatarURL = path.join("avatars", filename);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+  res.status(200).json({
     avatarURL,
-  });
+  })
 };
 
 module.exports = {
