@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
 const path = require("path");
 const fs = require("fs/promises");
+const Jimp = require("jimp");
 
 const { User } = require("../models/user");
 
@@ -10,7 +11,7 @@ const { HttpError, ctrlWrapper } = require("../helpers");
 
 const { SECRET_KEY } = process.env;
 
-const avatarsDir = path.join(__dirname, "../", "public", "avatars");
+const avatarDir = path.join(__dirname, "../", "public", "avatars");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -77,13 +78,9 @@ const updateSubscription = async (req, res) => {
   if (!["starter", "pro", "business"].includes(subscription)) {
     throw HttpError(400);
   }
-  const updatedSubscription = await User.findByIdAndUpdate(
-    _id,
-    { subscription },
-    {
-      new: true,
-    }
-  );
+
+  const updatedSubscription = await User.findByIdAndUpdate(_id, { subscription }, { new: true, });
+
   res.status(200).json({
     subscription: updatedSubscription.subscription,
   });
@@ -92,20 +89,24 @@ const updateSubscription = async (req, res) => {
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: tempUpload, originalname } = req.file;
-  const filename = `${_id}_${originalname}`;
-  const resultUpload = path.join(avatarsDir, filename);
 
-  // Delete previous avatar, if exists
-  const user = await User.findById(_id);
-  if (user.avatarURL) {
-    const previousAvatarPath = path.join(avatarsDir, path.basename(user.avatarURL));
-    await fs.unlink(previousAvatarPath);
-  }
+  const filename = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarDir, filename);
 
   await fs.rename(tempUpload, resultUpload);
-  const avatarURL = path.join("avatars", filename);
 
+  const avatarURL = path.join("avatars", filename);
   await User.findByIdAndUpdate(_id, { avatarURL });
+
+  Jimp.read(tempUpload)
+    .then((image) => {
+      image.resize(250, 250).quality(90).write(resultUpload);
+    })
+    .catch((err) => {
+      throw HttpError(400, err);
+    });
+
+  fs.unlink(tempUpload);
 
   res.json({
     avatarURL,
