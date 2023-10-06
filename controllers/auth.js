@@ -93,14 +93,20 @@ const updateAvatar = async (req, res) => {
   const filename = `${_id}_${originalname}`;
   const resultUpload = path.join(avatarDir, filename);
 
-  Jimp.read(tempUpload)
-    .then((image) => {
-      image.resize(250, 250).quality(90).write(resultUpload);
-    })
-    .catch((err) => {
-      throw HttpError(400, err);
-    });
-  fs.unlink(tempUpload);
+  // Jimp.read(tempUpload)
+  //   .then((image) => {
+  //     image.resize(250, 250).quality(90).write(resultUpload);
+  //   })
+  //   .catch((err) => {
+  //     throw HttpError(400, err);
+  //   });
+  // fs.unlink(tempUpload);
+
+    const img = await Jimp.read(tempUpload);
+    await img
+    .autocrop()
+    .cover(250, 250, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE)
+    .writeAsync(tempUpload);
 
   await fs.rename(tempUpload, resultUpload);
   const avatarURL = path.join("avatars", filename);
