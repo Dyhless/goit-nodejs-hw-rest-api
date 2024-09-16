@@ -36,6 +36,7 @@ const deleteById = async (req, res) => {
   res.json({ message: "Delete success" });
 };
 
+
 module.exports = {
   getAll: ctrlWrapper(getAll),
   getById: ctrlWrapper(getById),
