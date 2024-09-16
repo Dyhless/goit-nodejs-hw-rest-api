@@ -19,7 +19,7 @@ async function getContactById(contactId) {
   return result || null;
 }
 
-// returns the object of the added contact.
+// returns the object of the added contact
 async function addContact(name, email, phone) {
   const contacts = await listContacts();
   const newContact = {
