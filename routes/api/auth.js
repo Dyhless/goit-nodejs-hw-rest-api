@@ -5,7 +5,7 @@ const ctrl = require("../../controllers/auth");
 const { schemas } = require("../../models/user");
 const { validateBody, authenticate, upload } = require("../../middlewares");
 
-// signup
+// signup.
 router.post("/register", validateBody(schemas.registerSchema), ctrl.register);
 
 router.get("verify/:verificationCode", ctrl.verifyEmail);
