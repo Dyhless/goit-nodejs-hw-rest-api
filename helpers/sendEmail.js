@@ -5,7 +5,7 @@ const { META_PASSWORD, META_EMAIL } = process.env;
 
 const nodemailerConfig = {
    host: "smtp.meta.ua",
-   port: 465, // 25, 465, 2525 - existed ports
+   port: 465, // 25, 465, 2525 - existed ports.
    secure: true,
    auth: {
       user: META_EMAIL,
